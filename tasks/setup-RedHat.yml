@@ -13,6 +13,8 @@
 
 - name: Install awscli package.
   shell: python /tmp/awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws
+  args:
+    creates: /usr/bin/aws
 
 - name: Configure AWS.
   shell: aws configure set {{ item.key }} {{ item.value }} --profile {{ mysql_backup_aws_profile }}
@@ -31,12 +33,20 @@
 - name: Copy config template.
   template: src=templates/backup.cfg.j2 dest={{ mysql_backup_dir }}/backup.cfg
 
+- name: Append MAILTO var to cron file.
+  cronvar:
+    name: "MAILTO"
+    value: "{{ mysql_backup_cron_email }}"
+    user: "root"
+    cron_file: mysql-s3-backup
+  when: mysql_backup_cron_enabled and mysql_backup_cron_email
+
 - name: Add backup script to cron.
   cron:
     name: mysql-s3-backup
-    minute: "{{ mysql_backup_cron.minute }}"
-    hour: "{{ mysql_backup_cron.hour }}"
+    minute: "{{ mysql_backup_cron_minute }}"
+    hour: "{{ mysql_backup_cron_hour }}"
     job: "{{ mysql_backup_dir }}/backup.sh"
-    user: root
+    user: "root"
     cron_file: mysql-s3-backup
-  when: mysql_backup_cron.enabled
+  when: mysql_backup_cron_enabled

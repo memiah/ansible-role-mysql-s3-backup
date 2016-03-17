@@ -46,12 +46,12 @@ Available variables are listed below, along with default values (see
 
 Directory where the backup script and config will be stored.
 
-    mysql_backup_cron:
-      enabled: true
-      hour: 1
-      minute: 0
+    mysql_backup_cron_enabled: true
+    mysql_backup_cron_hour: 1
+    mysql_backup_cron_minute: 0
+    mysql_backup_cron_email: false
 
-Cron is enabled and set to run at at 01:00 every day.
+Cron is enabled and set to run at at 01:00 every day and not emailed to a recipient.
 
     mysql_backup_aws_profile: "mysql-s3-backup"
 

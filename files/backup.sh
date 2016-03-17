@@ -3,7 +3,7 @@
 # to Amazon S3 (with optional GPG encryption).
 
 # Path to config file to allow variables to be overridden.
-readonly config_file="backup.cfg"
+readonly config_file=$(dirname "$0")/backup.cfg
 
 # Date and time used to create backup directories "YYYY-MM-DD_HH.II.SS".
 timestamp=$(date +"%Y-%m-%d_%H.%M.%S")
@@ -90,7 +90,7 @@ function forced_cleanup {
 # Tidy up after the script is finished, restarting the slave and removing
 # the local backup dir if necessary.
 function cleanup {
-  printf "[Cleanup]\n"
+  echo "[Cleanup]"
   # Restart slave if required.
   if [ "$mysql_slave" == "true" ]; then
      printf "Restart slave ... "
@@ -302,7 +302,7 @@ done
 
 # Upload all files in backup directory to S3.
 if [ "$aws_enabled" == "true" ]; then
-  echo "[Start AWS S3 upload]\n"
+  echo "[Start AWS S3 upload]"
   printf "Uploading ${backup_dir} ... "
   $aws_cmd s3 cp "$backup_dir" "s3://${aws_bucket}/${aws_dir}" $aws_args --recursive >/dev/null 2>&1
   success_or_error
