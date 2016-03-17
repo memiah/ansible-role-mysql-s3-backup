@@ -1,6 +1,9 @@
 ---
-- name: Install python package.
-  yum: name=python state=latest
+- name: Install packages.
+  yum: name={{ item }} state=latest
+  with_items:
+    - python
+    - unzip
 
 - name: Download the awscli bundle.
   get_url: url=https://s3.amazonaws.com/aws-cli/awscli-bundle.zip dest=/tmp/awscli-bundle.zip
@@ -30,8 +33,10 @@
 
 - name: Add backup script to cron.
   cron:
-    name: "mysql-s3-backup"
+    name: mysql-s3-backup
     minute: "{{ mysql_backup_cron.minute }}"
-    hour: "{{ mysql_backup_cron.minute }}"
+    hour: "{{ mysql_backup_cron.hour }}"
     job: "{{ mysql_backup_dir }}/backup.sh"
+    user: root
+    cron_file: mysql-s3-backup
   when: mysql_backup_cron.enabled
