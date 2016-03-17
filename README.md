@@ -1,8 +1,9 @@
 MySQL S3 Backup
 ===============
 
-An Ansible Role that installs aws-cli and configures a bash script to
-upload individual MySQL database backups to Amazon S3.
+An Ansible Role that installs Amazon AWS Command Line Interface and
+configures a bash script to upload individual MySQL database backups
+to Amazon S3.
 
 Requirements
 ------------

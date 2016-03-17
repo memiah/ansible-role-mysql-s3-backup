@@ -185,11 +185,34 @@ if [ ! -d "$backup_dir" ]; then
   fi
 fi
 
+# Build AWS cli options (profile).
+aws_args="--profile $aws_profile"
+# Ensure the S3 bucket exists and we have access to it, or attempt to create.
+# If AWS is disabled, we force set the backup directory removal flag to false.
+if [ "$aws_enabled" == "true" ]; then
+  echo "[Checks]"
+  # Check if bucket exists, if not create it
+  printf "AWS bucket '${aws_bucket}' accessible ... "
+  aws_bucket_check=$("$aws_cmd" s3 ls "s3://${aws_bucket}" $aws_args 2>&1)
+  if [ $? -eq 0 ]; then
+    message "success" # Bucket exists
+  elif [[ "$aws_bucket_check" == *NoSuchBucket* ]]; then
+    message "warn" "No such bucket"
+    printf "Creating AWS S3 bucket ... "
+    $aws_cmd s3 mb "s3://${aws_bucket}" $aws_args >/dev/null 2>&1
+    success_or_quit
+  else
+    quit "Failed to check bucket."
+  fi
+else
+  backup_dir_remove=false
+fi
+
 # Build mysql args list based on the defined config options (defaults file or
 # user and password combination).
 mysql_args_array=();
 if [ "$mysql_use_defaults_file" == "true" ]; then
-  if [ ! "$mysql_defaults_file" ]; then
+  if [ ! -z "$mysql_defaults_file" ]; then
     mysql_args_array+=("--defaults-file=${mysql_defaults_file}")
   fi
 else
@@ -226,9 +249,8 @@ if [ "$mysql_slave" == "true" ]; then
   fi
 fi
 
-printf "Generating database list ... "
-
 # Fetch list of database names, excluding those we do not want to export.
+printf "Generating database list ... "
 databases=($("$mysql_cmd" "$mysql_args" --batch --skip-column-names -e 'SHOW DATABASES;' | grep -Ev "^(${mysql_exclude})$"))
 success_or_quit "Failed to export databases"
 
@@ -278,32 +300,12 @@ for db in "${databases[@]}"; do
   success_or_quit
 done
 
-# Build AWS cli options (profile).
-aws_args="--profile $aws_profile"
-
-# Upload all files in backup directory to S3, ensuring the bucket exists
-# and creating it if not. If AWS is disabled, we force set the backup
-# directory removal flag to false.
+# Upload all files in backup directory to S3.
 if [ "$aws_enabled" == "true" ]; then
-  printf "[Start AWS S3 upload]\n"
-  # Check if bucket exists, if not create it
-  printf "Checking for existing AWS bucket '${aws_bucket}' ... "
-  aws_bucket_check=$("$aws_cmd" s3 ls "s3://${aws_bucket}" $aws_args 2>&1)
-  if [ $? -eq 0 ]; then
-    message "success" # Bucket exists
-  elif [[ "$aws_bucket_check" == *NoSuchBucket* ]]; then
-    message "warn" "No such bucket"
-    printf "Creating AWS S3 bucket ... "
-    $aws_cmd s3 mb "s3://${aws_bucket}" $aws_args >/dev/null 2>&1
-    success_or_quit
-  else
-    quit "Failed to check bucket."
-  fi
+  echo "[Start AWS S3 upload]\n"
   printf "Uploading ${backup_dir} ... "
   $aws_cmd s3 cp "$backup_dir" "s3://${aws_bucket}/${aws_dir}" $aws_args --recursive >/dev/null 2>&1
   success_or_error
-else
-  backup_dir_remove=false
 fi
 
 # Perform cleanup script now all processing is complete.
