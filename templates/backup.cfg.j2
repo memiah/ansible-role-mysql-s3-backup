@@ -1,0 +1,9 @@
+# Configuration file for mysql-s3-backup.
+# Values defined here will override those specified in backup.sh.
+
+{% for item in mysql_backup_config | sort %}
+{{ item }}="{{ mysql_backup_config[item] }}"
+{% else %}
+# No config options set
+{% endfor %}
+

@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  author: memiah
+  description: MySQL to Amazon S3 backup.
+  company: "Memiah Limited"
+  license: "license (BSD, MIT)"
+  min_ansible_version: 1.9
+  platforms:
+  - name: EL
+    versions:
+    - all
+  galaxy_tags:
+    - web
+    - mysql
+    - backup
+    - aws
+    - amazon
+dependencies: []

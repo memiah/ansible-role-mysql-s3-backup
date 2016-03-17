@@ -1,0 +1,35 @@
+---
+mysql_backup_dir: "/opt/mysql-s3-backup"
+
+mysql_backup_cron:
+  enabled: true
+  hour: 1
+  minute: 0
+
+mysql_backup_aws_profile: "mysql-s3-backup"
+mysql_backup_aws_access_key: "access_key_here"
+mysql_backup_aws_secret_key: "secret_key_here"
+mysql_backup_aws_region: eu-west-1
+mysql_backup_aws_format: text
+
+mysql_backup_config: []
+#  aws_bucket: "mysql-s3-backup"
+#  aws_dir: "$timestamp"
+#  aws_enabled: "true"
+#  aws_profile: "default"
+#  timestamp: "$(date +"%Y-%m-%d_%H.%M.%S")"
+#  backup_dir: "/tmp/mysql-s3-backups/${timestamp}"
+#  backup_dir_remove: "true"
+#  mysql_slave: "false"
+#  mysql_use_defaults_file: "true"
+#  mysql_defaults_file: ""
+#  mysql_user: ""
+#  mysql_password: ""
+#  mysql_host: ""
+#  mysql_exclude: "information_schema|performance_schema|mysql|sys"
+#  mysqldump_args: "--triggers --routines --force --opt --add-drop-database"
+#  gpg_enabled: "false"
+#  gpg_args: "--encrypt --batch --trust-model always"
+#  gpg_recipient: ""
+#  gpg_sign: "false"
+#  gpg_signer: ""

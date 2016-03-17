@@ -1,0 +1,37 @@
+---
+- name: Install python package.
+  yum: name=python state=latest
+
+- name: Download the awscli bundle.
+  get_url: url=https://s3.amazonaws.com/aws-cli/awscli-bundle.zip dest=/tmp/awscli-bundle.zip
+
+- name: Unarchive the installer.
+  unarchive: src=/tmp/awscli-bundle.zip dest=/tmp copy=no creates=/tmp/awscli-bundle
+
+- name: Install awscli package.
+  shell: python /tmp/awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws
+
+- name: Configure AWS.
+  shell: aws configure set {{ item.key }} {{ item.value }} --profile {{ mysql_backup_aws_profile }}
+  with_dict:
+    aws_access_key_id: "{{ mysql_backup_aws_access_key }}"
+    aws_secret_access_key: "{{ mysql_backup_aws_secret_key }}"
+    region: "{{ mysql_backup_aws_region }}"
+    format: "{{ mysql_backup_aws_format }}"
+
+- name: Ensure script directory exists.
+  file: path="{{ mysql_backup_dir }}" state=directory
+
+- name: Copy backup script to target destination.
+  copy: src=files/backup.sh dest={{ mysql_backup_dir }}/backup.sh mode="u+x"
+
+- name: Copy config template.
+  template: src=templates/backup.cfg.j2 dest={{ mysql_backup_dir }}/backup.cfg
+
+- name: Add backup script to cron.
+  cron:
+    name: "mysql-s3-backup"
+    minute: "{{ mysql_backup_cron.minute }}"
+    hour: "{{ mysql_backup_cron.minute }}"
+    job: "{{ mysql_backup_dir }}/backup.sh"
+  when: mysql_backup_cron.enabled
