@@ -38,7 +38,7 @@
     name: "MAILTO"
     value: "{{ mysql_backup_cron_email }}"
     user: "root"
-    cron_file: mysql-s3-backup
+    cron_file: "{{ mysql_backup_cronfile }}"
   when: mysql_backup_cron_enabled and mysql_backup_cron_email
 
 - name: Add backup script to cron.
@@ -46,7 +46,7 @@
     name: mysql-s3-backup
     minute: "{{ mysql_backup_cron_minute }}"
     hour: "{{ mysql_backup_cron_hour }}"
-    job: "{{ mysql_backup_dir }}/backup.sh"
+    job: "{{ mysql_backup_dir }}/backup.sh --no-colors"
     user: "root"
-    cron_file: mysql-s3-backup
+    cron_file: "{{ mysql_backup_cronfile }}"
   when: mysql_backup_cron_enabled

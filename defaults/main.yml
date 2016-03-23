@@ -1,6 +1,7 @@
 ---
 mysql_backup_dir: "/opt/mysql-s3-backup"
 
+mysql_backup_cronfile: "mysql-s3-backup"
 mysql_backup_cron_enabled: true
 mysql_backup_cron_hour: 1
 mysql_backup_cron_minute: 0

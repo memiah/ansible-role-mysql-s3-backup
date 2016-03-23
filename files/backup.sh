@@ -17,6 +17,8 @@ file_extension=".sql.gz"
 lock_dir="/tmp/mysql-s3-backup-lock"
 # PID file.
 pid_file="$lock_dir/pid"
+# Display colored output.
+colors=true
 
 # Auto lookup path to mysql.
 mysql_cmd=$(which mysql)
@@ -71,14 +73,22 @@ aws_bucket="mysql-s3-backups"
 # Default AWS directory to store backups.
 aws_dir="$timestamp"
 
-# Set traps for specific signals.
-trap finish EXIT
-trap forced_cleanup SIGHUP SIGINT SIGTERM SIGQUIT SIGUSR1
-
 # Load overrides from external config file.
 if [ -f "$config_file" ]; then
   . $config_file
 fi
+
+# Parse optional command line args.
+for i in "$@"; do
+  case $i in
+    --no-colors) colors=false; shift;;
+    --backup-dir=*) backup_dir="${i#*=}"; shift;;
+  esac
+done
+
+# Set traps for specific signals.
+trap finish EXIT
+trap forced_cleanup SIGHUP SIGINT SIGTERM SIGQUIT SIGUSR1
 
 # Force cleanup if script was terminated.
 function forced_cleanup {
@@ -95,7 +105,6 @@ function cleanup {
   if [ "$mysql_slave" == "true" ]; then
      printf "Restart slave ... "
      if [ "$mysql_slave_restart" == "true" ]; then
-
        "$mysqladmin_cmd" "$mysql_args" start-slave
        success_or_error
      else
@@ -120,12 +129,16 @@ function cleanup {
 function message {
   icon="✘"
   case "$1" in
-    "success") colour=32; icon="✔"; message="Done" ;;
-    "warn") colour=33; message="Warning" ;;
-    *) colour=31; message="Error" ;;
+    "success") color=32; icon="✔"; message="Done" ;;
+    "warn") color=33; message="Warning" ;;
+    *) color=31; message="Error" ;;
   esac
   if [ "$2" ]; then message="$2"; fi
-  printf "\e[0;${colour}m${icon} ${message}\e[0m\n"
+  if [ "$colors" == "true" ]; then
+    printf "\e[0;${color}m${icon} ${message}\e[0m\n"
+  else
+    echo "${icon} ${message}"
+  fi
 }
 
 # Display the script run time when it finishes.

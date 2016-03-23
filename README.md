@@ -46,6 +46,7 @@ Available variables are listed below, along with default values (see
 
 Directory where the backup script and config will be stored.
 
+    mysql_backup_cronfile: "mysql-s3-backup"
     mysql_backup_cron_enabled: true
     mysql_backup_cron_hour: 1
     mysql_backup_cron_minute: 0
