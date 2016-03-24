@@ -12,30 +12,6 @@ The role assumes you already have MySQL installed.
 
 If enabling GPG, you will need to have created those credentials too.
 
-You will need an Amazon AWS account, with a user and access key security
-credentials with permission to the specified bucket.
-
-It is recommended that you create a user with locked down permissions.
-Below is a policy named `AmazonS3CreateReadWriteAccess-<bucket-name>`
-that can be used to provide limited (create/list/put) access to the
-bucket `<bucket-name>`.
-
-    {
-        "Version": "2012-10-17",
-        "Statement": [
-            {
-                "Effect": "Allow",
-                "Action": [ "s3:CreateBucket", "s3:ListBucket" ],
-                "Resource": [ "arn:aws:s3:::<bucket-name>" ]
-            },
-            {
-                "Effect": "Allow",
-                "Action": [ "s3:PutObject" ],
-                "Resource": [ "arn:aws:s3:::<bucket-name>/*" ]
-            }
-        ]
-    }
-
 Role Variables
 --------------
 
@@ -71,8 +47,8 @@ Your Amazon AWS secret key.
 Region name where the S3 bucket is located.
 
     mysql_backup_aws_format: text
-    
-Format of command output.
+
+Output format from the AWS CLI.
 
     mysql_backup_config: []
 
@@ -118,13 +94,10 @@ Customisations to the backup script itself (values use bash syntax).
 Dependencies
 ------------
 
-None.
+- [memiah.aws-cli](https://galaxy.ansible.com/memiah/aws-cli/)
 
 Example Playbook
 ----------------
-
-Including an example of how to use your role (for instance, with 
-variables passed in as parameters) is always nice for users too:
 
     - hosts: mysql-servers
       vars_files:
@@ -136,9 +109,10 @@ variables passed in as parameters) is always nice for users too:
 
     mysql_backup_aws_access_key: "<accesss-key>"
     mysql_backup_aws_secret_key: "<secret-key>"
+    mysql_backup_aws_region: eu-west-1
     mysql_backup_config:
       aws_profile: "{{ mysql_backup_aws_profile }}"
-      aws_bucket: "bash-mysql-s3-backup-test"
+      aws_bucket: "<bucket-name>"
       backup_dir: "{{ mysql_backup_dir }}/backups/${timestamp}"
 
 License

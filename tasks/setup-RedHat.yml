@@ -1,29 +1,4 @@
 ---
-- name: Install packages.
-  yum: name={{ item }} state=latest
-  with_items:
-    - python
-    - unzip
-
-- name: Download the awscli bundle.
-  get_url: url=https://s3.amazonaws.com/aws-cli/awscli-bundle.zip dest=/tmp/awscli-bundle.zip
-
-- name: Unarchive the installer.
-  unarchive: src=/tmp/awscli-bundle.zip dest=/tmp copy=no creates=/tmp/awscli-bundle
-
-- name: Install awscli package.
-  shell: python /tmp/awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws
-  args:
-    creates: /usr/bin/aws
-
-- name: Configure AWS.
-  shell: aws configure set {{ item.key }} {{ item.value }} --profile {{ mysql_backup_aws_profile }}
-  with_dict:
-    aws_access_key_id: "{{ mysql_backup_aws_access_key }}"
-    aws_secret_access_key: "{{ mysql_backup_aws_secret_key }}"
-    region: "{{ mysql_backup_aws_region }}"
-    format: "{{ mysql_backup_aws_format }}"
-
 - name: Ensure script directory exists.
   file: path="{{ mysql_backup_dir }}" state=directory
 

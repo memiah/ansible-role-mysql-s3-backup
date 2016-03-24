@@ -1,14 +1,15 @@
 ---
-mysql_backup_dir: "/opt/mysql-s3-backup"
+mysql_backup_name: "mysql-s3-backup"
 
-mysql_backup_cronfile: "mysql-s3-backup"
+mysql_backup_dir: "/opt/{{ mysql_backup_name }}"
+
+mysql_backup_cronfile: "{{ mysql_backup_name }}"
 mysql_backup_cron_enabled: true
 mysql_backup_cron_hour: 1
 mysql_backup_cron_minute: 0
 mysql_backup_cron_email: false
-#mysql_backup_cron_email: "recipient@email.com"
 
-mysql_backup_aws_profile: "mysql-s3-backup"
+mysql_backup_aws_profile: "{{ mysql_backup_name }}"
 mysql_backup_aws_access_key: "access_key_here"
 mysql_backup_aws_secret_key: "secret_key_here"
 mysql_backup_aws_region: eu-west-1
