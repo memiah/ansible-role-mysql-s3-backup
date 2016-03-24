@@ -16,9 +16,10 @@ galaxy_info:
     - aws
     - amazon
 dependencies:
-  - role: memiah.aws-cli
-    aws_cli_profile: "{{ mysql_backup_aws_profile }}"
-    aws_cli_access_key: "{{ mysql_backup_aws_access_key }}"
-    aws_cli_secret_key: "{{ mysql_backup_aws_secret_key }}"
-    aws_cli_region: "{{ mysql_backup_aws_region }}"
-    aws_cli_format: "{{ mysql_backup_aws_format }}"
+  - { role: memiah.aws-cli,
+      aws_cli_profile: "{{ mysql_backup_aws_profile }}",
+      aws_cli_access_key: "{{ mysql_backup_aws_access_key }}",
+      aws_cli_secret_key: "{{ mysql_backup_aws_secret_key }}",
+      aws_cli_region: "{{ mysql_backup_aws_region }}",
+      aws_cli_format: "{{ mysql_backup_aws_format }}"
+    }
