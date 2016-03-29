@@ -241,7 +241,7 @@ else
 fi
 
 # Join the MySQL args by single space
-mysql_args=$(echo "${mysql_args_array[*]}")
+mysql_args="${mysql_args_array[@]}"
 
 echo "[Start MySQL Export]"
 
@@ -249,12 +249,12 @@ echo "[Start MySQL Export]"
 # setting the restart flag to ensure we start it up again upon completion.
 if [ "$mysql_slave" == "true" ]; then
   mysql_slave_restart=false
-  slave_mysql=$("$mysql_cmd" "$mysql_args" -e "SHOW SLAVE STATUS \G")
+  slave_mysql=$("$mysql_cmd" ${mysql_args} -e "SHOW SLAVE STATUS \G")
   slave_io=$(echo "$slave_mysql" | grep 'Slave_IO_Running:' | awk '{print $2}')
   slave_sql=$(echo "$slave_mysql" | grep 'Slave_SQL_Running:' | awk '{print $2}')
   printf "Stop slave ... "
   if [ "Yes" == "$slave_io" ] || [ "Yes" == "$slave_sql" ]; then
-    "$mysqladmin_cmd" "$mysql_args" start-slave
+    "$mysqladmin_cmd" ${mysql_args} stop-slave >/dev/null
     success_or_error
     mysql_slave_restart=true
   else
@@ -264,7 +264,7 @@ fi
 
 # Fetch list of database names, excluding those we do not want to export.
 printf "Generating database list ... "
-databases=($("$mysql_cmd" "$mysql_args" --batch --skip-column-names -e 'SHOW DATABASES;' | grep -Ev "^(${mysql_exclude})$"))
+databases=($("$mysql_cmd" ${mysql_args} --batch --skip-column-names -e 'SHOW DATABASES;' | grep -Ev "^(${mysql_exclude})$"))
 success_or_quit "Failed to export databases"
 
 # Check we have some databases to export, otherwise stop here.
