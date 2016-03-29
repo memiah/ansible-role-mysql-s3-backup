@@ -105,7 +105,7 @@ function cleanup {
   if [ "$mysql_slave" == "true" ]; then
      printf "Restart slave ... "
      if [ "$mysql_slave_restart" == "true" ]; then
-       "$mysqladmin_cmd" ${mysql_args} start-slave
+       "$mysqladmin_cmd" ${mysql_args} start-slave >/dev/null
        success_or_error
      else
        message "warn" "Skipped"
