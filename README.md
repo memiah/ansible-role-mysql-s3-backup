@@ -34,11 +34,11 @@ Cron is enabled and set to run at at 01:00 every day and not emailed to a recipi
 
 Fro separation we create a new AWS profile for this script context.
 
-    mysql_backup_aws_access_key: "<accesss-key>"
+    mysql_backup_aws_access_key: "[accesss-key]"
     
 Your Amazon AWS access key.
 
-    mysql_backup_aws_secret_key: "<secret-key>"
+    mysql_backup_aws_secret_key: "[secret-key]"
     
 Your Amazon AWS secret key.
 
@@ -107,12 +107,12 @@ Example Playbook
 
 *Inside `vars/main.yml`*:
 
-    mysql_backup_aws_access_key: "<accesss-key>"
-    mysql_backup_aws_secret_key: "<secret-key>"
+    mysql_backup_aws_access_key: "[accesss-key]"
+    mysql_backup_aws_secret_key: "[secret-key]"
     mysql_backup_aws_region: eu-west-1
     mysql_backup_config:
       aws_profile: "{{ mysql_backup_aws_profile }}"
-      aws_bucket: "<bucket-name>"
+      aws_bucket: "[bucket-name]"
       backup_dir: "{{ mysql_backup_dir }}/backups/${timestamp}"
 
 License
