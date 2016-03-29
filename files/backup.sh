@@ -5,8 +5,8 @@
 # Path to config file to allow variables to be overridden.
 readonly config_file=$(dirname "$0")/backup.cfg
 
-# Date and time used to create backup directories "YYYY-MM-DD_HH.II.SS".
-timestamp=$(date +"%Y-%m-%d_%H.%M.%S")
+# Date and time used to create backup directories "YYYY-MM-DD_HHII".
+timestamp=$(date +"%Y-%m-%d_%H%M")
 # Local backup directory path used to store files prior to upload.
 backup_dir="/tmp/mysql-s3-backups/${timestamp}"
 # Remove local backup directory upon script completion (true or false).
@@ -105,7 +105,7 @@ function cleanup {
   if [ "$mysql_slave" == "true" ]; then
      printf "Restart slave ... "
      if [ "$mysql_slave_restart" == "true" ]; then
-       "$mysqladmin_cmd" "$mysql_args" start-slave
+       "$mysqladmin_cmd" ${mysql_args} start-slave
        success_or_error
      else
        message "warn" "Skipped"
@@ -206,13 +206,13 @@ if [ "$aws_enabled" == "true" ]; then
   echo "[Checks]"
   # Check if bucket exists, if not create it
   printf "AWS bucket '${aws_bucket}' accessible ... "
-  aws_bucket_check=$("$aws_cmd" s3 ls "s3://${aws_bucket}" $aws_args 2>&1)
+  aws_bucket_check=$("$aws_cmd" s3 ls "s3://${aws_bucket}" ${aws_args} 2>&1)
   if [ $? -eq 0 ]; then
     message "success" # Bucket exists
   elif [[ "$aws_bucket_check" == *NoSuchBucket* ]]; then
     message "warn" "No such bucket"
     printf "Creating AWS S3 bucket ... "
-    $aws_cmd s3 mb "s3://${aws_bucket}" $aws_args >/dev/null 2>&1
+    $aws_cmd s3 mb "s3://${aws_bucket}" ${aws_args} >/dev/null 2>&1
     success_or_quit
   else
     quit "Failed to check bucket."
@@ -240,7 +240,7 @@ else
   fi
 fi
 
-# Join the MySQL args by single space
+# Join the MySQL args by single space.
 mysql_args="${mysql_args_array[@]}"
 
 echo "[Start MySQL Export]"
@@ -317,7 +317,7 @@ done
 if [ "$aws_enabled" == "true" ]; then
   echo "[Start AWS S3 upload]"
   printf "Uploading ${backup_dir} ... "
-  $aws_cmd s3 cp "$backup_dir" "s3://${aws_bucket}/${aws_dir}" $aws_args --recursive >/dev/null 2>&1
+  $aws_cmd s3 cp "$backup_dir" "s3://${aws_bucket}/${aws_dir}" ${aws_args} --recursive >/dev/null 2>&1
   success_or_error
 fi
 
