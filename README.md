@@ -12,6 +12,30 @@ The role assumes you already have MySQL installed.
 
 If enabling GPG, you will need to have created those credentials too.
 
+It is recommended that you create a user with locked down permissions.
+Below is a policy named `AmazonS3CreateReadWriteAccess-[bucket-name]`
+that can be used to provide limited (create/list/put) access to the
+bucket `[bucket-name]`.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [ "s3:CreateBucket", "s3:ListBucket" ],
+                "Resource": [ "arn:aws:s3:::[bucket-name]" ]
+            },
+            {
+                "Effect": "Allow",
+                "Action": [ "s3:PutObject" ],
+                "Resource": [ "arn:aws:s3:::[bucket-name]/*" ]
+            }
+        ]
+    }
+
+Additionally, you may wish to consider bucket versioing and lifecycles
+within S3.
+
 Role Variables
 --------------
 
@@ -24,15 +48,18 @@ Directory where the backup script and config will be stored.
 
     mysql_backup_cronfile: "mysql-s3-backup"
     mysql_backup_cron_enabled: true
-    mysql_backup_cron_hour: 1
+    mysql_backup_cron_hour: 23
     mysql_backup_cron_minute: 0
     mysql_backup_cron_email: false
 
-Cron is enabled and set to run at at 01:00 every day and not emailed to a recipient.
+Cron is enabled and set to run at at 23:00 every day and not emailed to
+a recipient. If you want the output emailed, set this to the recipient
+email address.
 
     mysql_backup_aws_profile: "mysql-s3-backup"
 
-Fro separation we create a new AWS profile for this script context.
+For separation we create a new AWS profile for this script context, you
+could set this to `"default"` to ignore profiles.
 
     mysql_backup_aws_access_key: "[accesss-key]"
     
@@ -54,8 +81,8 @@ Output format from the AWS CLI.
 
 Customisations to the backup script itself (values use bash syntax).
 
-* `timestamp: "$(date +"%Y-%m-%d_%H.%M.%S")"`
-  Date and time used to create backup directories "YYYY-MM-DD_HH.II.SS".
+* `timestamp: "$(date +"%Y-%m-%d_%H%M")"`
+  Date and time used to create backup directories "YYYY-MM-DD_HHII".
 * `backup_dir: "/tmp/mysql-s3-backups/${timestamp}"`
   Local backup directory path used to store files prior to upload.
 * `backup_dir_remove: "true"`
@@ -103,16 +130,16 @@ Example Playbook
       vars_files:
         - vars/main.yml
       roles:
-         - { role: memiah.mysql-s3-backup }
+         - memiah.mysql-s3-backup
 
 *Inside `vars/main.yml`*:
 
-    mysql_backup_aws_access_key: "[accesss-key]"
-    mysql_backup_aws_secret_key: "[secret-key]"
+    mysql_backup_aws_access_key: "access_key_here"
+    mysql_backup_aws_secret_key: "secret_key_here"
     mysql_backup_aws_region: eu-west-1
     mysql_backup_config:
       aws_profile: "{{ mysql_backup_aws_profile }}"
-      aws_bucket: "[bucket-name]"
+      aws_bucket: "bucket_name_here"
       backup_dir: "{{ mysql_backup_dir }}/backups/${timestamp}"
 
 License

@@ -5,7 +5,7 @@ mysql_backup_dir: "/opt/{{ mysql_backup_name }}"
 
 mysql_backup_cronfile: "{{ mysql_backup_name }}"
 mysql_backup_cron_enabled: true
-mysql_backup_cron_hour: 1
+mysql_backup_cron_hour: 23
 mysql_backup_cron_minute: 0
 mysql_backup_cron_email: false
 
@@ -20,7 +20,7 @@ mysql_backup_config: []
 #  aws_dir: "$timestamp"
 #  aws_enabled: "true"
 #  aws_profile: "default"
-#  timestamp: "$(date +"%Y-%m-%d_%H.%M.%S")"
+#  timestamp: "$(date +"%Y-%m-%d_%H%M")"
 #  backup_dir: "/tmp/mysql-s3-backups/${timestamp}"
 #  backup_dir_remove: "true"
 #  mysql_slave: "false"
