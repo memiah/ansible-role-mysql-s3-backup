@@ -19,8 +19,15 @@ lock_dir="/tmp/mysql-s3-backup-lock"
 pid_file="$lock_dir/pid"
 # Display colored output.
 colors=true
-# Export each database table an individual file.
+# Export each database table to individual file (database.table.sql).
 file_per_table=false
+# Export table schema to individual file (database.table-schema.sql).
+export_table_schema=false
+
+# Comma separated list of databases to exclude from the export.
+exclude="information_schema,performance_schema,mysql,sys"
+# Tables to exclude with optional wildcard, e.g. "db.table,db.*,db.table_*"
+exclude_tables=""
 
 # Auto lookup path to mysql.
 mysql_cmd=$(which mysql)
@@ -36,13 +43,6 @@ mysql_defaults_file=""
 mysql_user=""
 mysql_password=""
 mysql_host=""
-
-# List of databases to exclude from the export, this is a comma separated list.
-exclude="information_schema,performance_schema,mysql,sys"
-# List of tables to exclude with optional wildcard, e.g. "db.table,db.*,db.table_*"
-exclude_tables=""
-# Export db / table schema in individual file.
-export_schema=false
 
 # Auto lookup path to mysqladmin, used to start / stop slave.
 mysqladmin_cmd=$(which mysqladmin)
@@ -297,7 +297,7 @@ fi
 
 # Fetch list of database names, excluding those we do not want to export.
 printf "Generating database list ... "
-databases=($("$mysql_cmd" ${mysql_args} -B -N -e 'SHOW DATABASES;' | grep -Ev "^(${exclude//,/|})$"))
+databases=($("$mysql_cmd" ${mysql_args} -B -N -e 'SHOW DATABASES;' | grep -Ev "^("${exclude//,/|}")$"))
 success_or_quit "Failed to export databases"
 
 # Check we have some databases to export, otherwise stop here.
@@ -352,10 +352,7 @@ for db in $databases; do
     echo "$db"
     # Fetch table list in batch mode (-B) and skip column names (-N).
     tables=$("$mysql_cmd" ${mysql_args} -B -N "$db" -e 'SHOW TABLES;')
-    mkdir -p "${backup_dir}/${db}"
-    if [ $? -eq 1 ]; then
-      quit "Failed to create local backup directory ${backup_dir}/${db}"
-    fi
+    # Ensure backup directory exists.
     for table in $tables; do
       str_pad "  ┕ $table"
       filename="${db}.${table}"
@@ -366,11 +363,11 @@ for db in $databases; do
           continue 2
         fi
       done
-      mysql_export "${db} ${table}" "${db}/${filename}"
+      mysql_export "${db} ${table}" "${filename}"
       # Export table schema.
-      if [ "$export_schema" = true ]; then
+      if [ "$export_table_schema" = true ]; then
         str_pad "    ┕ Schema "
-        mysql_export "${db} ${table} --no-data" "${db}/${filename}.schema"
+        mysql_export "${db} ${table} --no-data" "${filename}-schema"
       fi
     done
   else
@@ -379,12 +376,6 @@ for db in $databases; do
     printf " "
     mysql_export "$db" "$db"
   fi
-  # Export database schema.
-  if [ "$export_schema" = true ]; then
-      str_pad "    ┕ Schema "
-      mysql_export "${db} --no-data" "${db}.schema"
-    fi
-  break
 done
 
 # Upload all files in backup directory to S3.
