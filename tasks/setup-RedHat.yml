@@ -3,11 +3,11 @@
   file: path="{{ mysql_backup_dir }}" state=directory
 
 - name: Copy backup script to target destination.
-  copy: src=files/backup.sh dest={{ mysql_backup_dir }}/backup.sh mode="u+x"
+  copy: src=files/backup.sh dest={{ mysql_backup_dir }}/backup.sh mode="0700"
 
 - name: Copy config template.
-  template: src=templates/backup.cfg.j2 dest={{ mysql_backup_dir }}/backup.cfg
-
+  template: src=templates/backup.cfg.j2 dest={{ mysql_backup_dir }}/backup.cfg mode="0600"
+  
 - name: Append MAILTO var to cron file.
   cronvar:
     name: "MAILTO"
