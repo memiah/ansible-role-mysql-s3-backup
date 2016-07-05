@@ -22,3 +22,4 @@ dependencies:
     aws_cli_secret_key: "{{ mysql_backup_aws_secret_key }}"
     aws_cli_region: "{{ mysql_backup_aws_region }}"
     aws_cli_format: "{{ mysql_backup_aws_format }}"
+    aws_cli_system_user: "{{ mysql_backup_system_user }}"

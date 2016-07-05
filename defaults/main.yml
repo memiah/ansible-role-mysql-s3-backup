@@ -8,6 +8,7 @@ mysql_backup_cron_enabled: true
 mysql_backup_cron_hour: 23
 mysql_backup_cron_minute: 0
 mysql_backup_cron_email: false
+mysql_backup_system_user: root
 
 mysql_backup_aws_profile: "{{ mysql_backup_name }}"
 mysql_backup_aws_access_key: "access_key_here"
