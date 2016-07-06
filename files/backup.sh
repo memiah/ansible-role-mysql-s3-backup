@@ -23,7 +23,8 @@ colors=true
 file_per_table=false
 # Export table schema to individual file (database.table-schema.sql).
 export_table_schema=false
-
+# Export only these tables (comma separated list).
+include=".*"
 # Comma separated list of databases to exclude from the export.
 exclude="information_schema,performance_schema,mysql,sys"
 # Tables to exclude with optional wildcard, e.g. "db.table,db.*,db.table_*"
@@ -203,6 +204,11 @@ while [ $# -gt 0 ]; do
   shift
 done
 
+# Append .gpg to file ext if enabled.
+if [ $gpg_enabled = true ]; then
+  file_extension+=".gpg"
+fi
+
 # Check if the script is already running.
 mkdir -p "$lock_dir" 2> /dev/null
 if [ $? -eq 0 ]; then
@@ -297,7 +303,7 @@ fi
 
 # Fetch list of database names, excluding those we do not want to export.
 printf "Generating database list ... "
-databases=($("$mysql_cmd" ${mysql_args} -B -N -e 'SHOW DATABASES;' | grep -Ev "^("${exclude//,/|}")$"))
+databases=($("$mysql_cmd" ${mysql_args} -B -N -e 'SHOW DATABASES;' | grep -E "^("${include//,/|}")$" | grep -Ev "^("${exclude//,/|}")$"))
 success_or_quit "Failed to export databases"
 
 # Check we have some databases to export, otherwise stop here.
@@ -337,7 +343,7 @@ if [ "$compress_cmd" ]; then
   mysql_export_cmd+=" | ${compress_cmd}"
 fi
 if [ $gpg_enabled = true ]; then
-  mysql_export_cmd+=" | ${gpg_command} --output ${backup_dir}/%s${file_extension}.gpg"
+  mysql_export_cmd+=" | ${gpg_command} --output ${backup_dir}/%s${file_extension}"
 else
   mysql_export_cmd+=" > ${backup_dir}/%s${file_extension}"
 fi
@@ -352,7 +358,6 @@ for db in $databases; do
     echo "$db"
     # Fetch table list in batch mode (-B) and skip column names (-N).
     tables=$("$mysql_cmd" ${mysql_args} -B -N "$db" -e 'SHOW TABLES;')
-    # Ensure backup directory exists.
     for table in $tables; do
       str_pad "  ┕ $table"
       filename="${db}.${table}"
@@ -366,15 +371,20 @@ for db in $databases; do
       mysql_export "${db} ${table}" "${filename}"
       # Export table schema.
       if [ "$export_table_schema" = true ]; then
-        str_pad "    ┕ Schema "
+        str_pad "    ┕ ${filename}-schema${file_extension}"
         mysql_export "${db} ${table} --no-data" "${filename}-schema"
       fi
     done
   else
-    # Export database to single file.
+    # Export database schema and data to single file.
     str_pad "  ┕ $table"
     printf " "
+    # Export database schema.
     mysql_export "$db" "$db"
+    if [ "$export_table_schema" = true ]; then
+      str_pad "    ┕ ${db}-schema${file_extension}"
+      mysql_export "${db} --no-data" "${db}-schema"
+    fi
   fi
 done
 
