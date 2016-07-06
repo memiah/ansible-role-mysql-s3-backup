@@ -77,6 +77,10 @@ Region name where the S3 bucket is located.
 
 Output format from the AWS CLI.
 
+    mysql_backup_system_user: root
+
+User that will own and run the backup script as well as the cron job.
+
     mysql_backup_config: []
 
 Customisations to the backup script itself (values use bash syntax).
