@@ -1,0 +1,9 @@
+---
+- name: Copy across GPG secret key.
+  copy: content={{ mysql_backup_gpg_secret_key }} dest={{ mysql_backup_gpg_secret_dest }}
+
+- name: Import GPG secret key into keyring.
+  command: gpg --allow-secret-key-import --import {{ mysql_backup_gpg_secret_dest }}
+  register: gpg_result
+  failed_when: '"Invalid keyring" in gpg_result.stderr'
+  changed_when: '"secret keys imported" in gpg_result.stderr'

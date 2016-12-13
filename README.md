@@ -42,11 +42,15 @@ Role Variables
 Available variables are listed below, along with default values (see 
 `defaults/main.yml`):
 
-    mysql_backup_dir: "/opt/mysql-s3-backup"
+    mysql_backup_name: "mysql-s3-backup"
+    
+Name used to identify this role, used for default directory, file and aws profile naming.
+
+    mysql_backup_dir: "/opt/{{ mysql_backup_name }}"
 
 Directory where the backup script and config will be stored.
 
-    mysql_backup_cronfile: "mysql-s3-backup"
+    mysql_backup_cronfile: "{{ mysql_backup_name }}"
     mysql_backup_cron_enabled: true
     mysql_backup_cron_hour: 23
     mysql_backup_cron_minute: 0
@@ -56,7 +60,7 @@ Cron is enabled and set to run at at 23:00 every day and not emailed to
 a recipient. If you want the output emailed, set this to the recipient
 email address.
 
-    mysql_backup_aws_profile: "mysql-s3-backup"
+    mysql_backup_aws_profile: "{{ mysql_backup_name }}"
 
 For separation we create a new AWS profile for this script context, you
 could set this to `"default"` to ignore profiles.
@@ -76,6 +80,14 @@ Region name where the S3 bucket is located.
     mysql_backup_aws_format: text
 
 Output format from the AWS CLI.
+
+    mysql_backup_gpg_secret_key: False
+
+GPG secret key that the backups are encrypted for.
+
+    mysql_backup_gpg_secret_dest: "~/{{ mysql_backup_name }}-gpg.asc"
+
+Location used to store the GPG secret key.
 
     mysql_backup_system_user: root
 

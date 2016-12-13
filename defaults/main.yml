@@ -11,10 +11,13 @@ mysql_backup_cron_email: false
 mysql_backup_system_user: root
 
 mysql_backup_aws_profile: "{{ mysql_backup_name }}"
-mysql_backup_aws_access_key: "access_key_here"
-mysql_backup_aws_secret_key: "secret_key_here"
+mysql_backup_aws_access_key: False
+mysql_backup_aws_secret_key: False
 mysql_backup_aws_region: eu-west-1
 mysql_backup_aws_format: text
+
+mysql_backup_gpg_secret_key: False
+mysql_backup_gpg_secret_dest: "~/{{ mysql_backup_name }}-gpg.asc"
 
 mysql_backup_config: []
 #  aws_bucket: "mysql-s3-backup"

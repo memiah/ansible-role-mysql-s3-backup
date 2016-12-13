@@ -1,4 +1,6 @@
 ---
+- include: gpg.yml
+  when: mysql_backup_gpg_secret_key != False
 
 - name: Ensure script directory exists.
   file: path="{{ mysql_backup_dir }}" state=directory mode="0744" owner={{ mysql_backup_system_user }}
