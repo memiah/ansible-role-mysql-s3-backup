@@ -25,6 +25,9 @@ mysql_cmd=$(which mysql)
 # Set to true if backing up from a MySQL slave server, this will stop the slave
 # and start it again when the script is finished.
 mysql_slave=false
+# Set to true if you are backing up from an RDS read replica so we use a different
+# method to stop and start replication. (e.g. CALL mysql.rds_stop_replication;)
+mysql_using_rds=false
 # Use default MySQL config file.
 mysql_use_defaults_file=true
 # Specifically set the defaults file location, e.g. "/etc/my.cnf".
@@ -105,7 +108,11 @@ function cleanup {
   if [ "$mysql_slave" == "true" ]; then
      printf "Restart slave ... "
      if [ "$mysql_slave_restart" == "true" ]; then
-       "$mysqladmin_cmd" ${mysql_args} start-slave >/dev/null
+       if [ "$mysql_using_rds" == true ]; then
+         "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_start_replication;" >/dev/null
+       else
+         "$mysqladmin_cmd" ${mysql_args} start-slave >/dev/null
+       fi
        success_or_error
      else
        message "warn" "Skipped"
@@ -254,7 +261,11 @@ if [ "$mysql_slave" == "true" ]; then
   slave_sql=$(echo "$slave_mysql" | grep 'Slave_SQL_Running:' | awk '{print $2}')
   printf "Stop slave ... "
   if [ "Yes" == "$slave_io" ] || [ "Yes" == "$slave_sql" ]; then
-    "$mysqladmin_cmd" ${mysql_args} stop-slave >/dev/null
+    if [ "$mysql_using_rds" == true ]; then
+      "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_stop_replication;" >/dev/null
+    else
+      "$mysqladmin_cmd" ${mysql_args} stop-slave >/dev/null
+    fi
     success_or_error
     mysql_slave_restart=true
   else
