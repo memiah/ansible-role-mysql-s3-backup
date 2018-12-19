@@ -39,11 +39,11 @@ within S3.
 Role Variables
 --------------
 
-Available variables are listed below, along with default values (see 
+Available variables are listed below, along with default values (see
 `defaults/main.yml`):
 
     mysql_backup_name: "mysql-s3-backup"
-    
+
 Name used to identify this role, used for default directory, file and aws profile naming.
 
     mysql_backup_dir: "/opt/{{ mysql_backup_name }}"
@@ -66,15 +66,15 @@ For separation we create a new AWS profile for this script context, you
 could set this to `"default"` to ignore profiles.
 
     mysql_backup_aws_access_key: "[accesss-key]"
-    
+
 Your Amazon AWS access key.
 
     mysql_backup_aws_secret_key: "[secret-key]"
-    
+
 Your Amazon AWS secret key.
 
     mysql_backup_aws_region: eu-west-1
-    
+
 Region name where the S3 bucket is located.
 
     mysql_backup_aws_format: text
@@ -113,6 +113,8 @@ Customisations to the backup script itself (values use bash syntax).
   Set the AWS profile to use (~/.aws/credentials and ~/.aws/config).
 * `mysql_slave: "false"`
   Set to true if backing up from a MySQL slave server, this will stop the slave and start it again when the script is finished.
+* `mysql_use_rds: "false"`
+    Set to true if backing up from an RDS read replica, this will ensure we use mysql.rds_stop_replication and mysql.rds_start_replication functions instead of the standard STOP / START SLAVE commands (which don't have the necessary permissions on RDS).
 * `mysql_use_defaults_file: "true"`
   Use default MySQL config file.
 * `mysql_defaults_file: ""`
