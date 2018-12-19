@@ -113,7 +113,7 @@ Customisations to the backup script itself (values use bash syntax).
   Set the AWS profile to use (~/.aws/credentials and ~/.aws/config).
 * `mysql_slave: "false"`
   Set to true if backing up from a MySQL slave server, this will stop the slave and start it again when the script is finished.
-* `mysql_use_rds: "false"`
+* `mysql_using_rds: "false"`
     Set to true if backing up from an RDS read replica, this will ensure we use mysql.rds_stop_replication and mysql.rds_start_replication functions instead of the standard STOP / START SLAVE commands (which don't have the necessary permissions on RDS).
 * `mysql_use_defaults_file: "true"`
   Use default MySQL config file.
