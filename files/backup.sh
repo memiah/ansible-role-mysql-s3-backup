@@ -109,7 +109,7 @@ function cleanup {
      printf "Restart slave ... "
      if [ "$mysql_slave_restart" == "true" ]; then
        if [ "$mysql_using_rds" == true ]; then
-         "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_start_replication;"
+         "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_start_replication;" >/dev/null
        else
          "$mysqladmin_cmd" ${mysql_args} start-slave >/dev/null
        fi
@@ -262,7 +262,7 @@ if [ "$mysql_slave" == "true" ]; then
   printf "Stop slave ... "
   if [ "Yes" == "$slave_io" ] || [ "Yes" == "$slave_sql" ]; then
     if [ "$mysql_using_rds" == true ]; then
-      "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_stop_replication;"
+      "$mysql_cmd" ${mysql_args} -e "CALL mysql.rds_stop_replication;" >/dev/null
     else
       "$mysqladmin_cmd" ${mysql_args} stop-slave >/dev/null
     fi
