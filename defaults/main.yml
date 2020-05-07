@@ -23,6 +23,7 @@ mysql_backup_config: []
 #  aws_bucket: "mysql-s3-backup"
 #  aws_dir: "$timestamp"
 #  aws_enabled: "true"
+#  aws_extra_arguments: ""
 #  aws_profile: "default"
 #  timestamp: "$(date +"%Y-%m-%d_%H%M")"
 #  backup_dir: "/tmp/mysql-s3-backups/${timestamp}"

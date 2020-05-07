@@ -107,6 +107,8 @@ Customisations to the backup script itself (values use bash syntax).
   Default AWS S3 bucket name.
 * `aws_dir: "$timestamp"`
   Default AWS directory to store backups.
+* `aws_extra_arguments: "--endpoint https://s3-compatable-endpoint.example.com"`
+  Extra arguments to pass to the aws cli.
 * `aws_enabled: "true"`
   Enable upload to Amazon S3, if false the "backup_dir_remove" flag will be set to false.
 * `aws_profile: "mysql-s3-backup"`

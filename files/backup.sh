@@ -75,6 +75,8 @@ aws_profile="mysql-s3-backup"
 aws_bucket="mysql-s3-backups"
 # Default AWS directory to store backups.
 aws_dir="$timestamp"
+# Default extra parameters to pass to aws cli tool
+aws_extra_arguments=""
 
 # Load overrides from external config file.
 if [ -f "$config_file" ]; then
@@ -206,7 +208,7 @@ if [ ! -d "$backup_dir" ]; then
 fi
 
 # Build AWS cli options (profile).
-aws_args="--profile $aws_profile"
+aws_args="--profile $aws_profile $aws_extra_arguments"
 # Ensure the S3 bucket exists and we have access to it, or attempt to create.
 # If AWS is disabled, we force set the backup directory removal flag to false.
 if [ "$aws_enabled" == "true" ]; then
