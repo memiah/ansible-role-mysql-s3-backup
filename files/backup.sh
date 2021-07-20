@@ -45,7 +45,7 @@ mysqladmin_cmd=$(which mysqladmin)
 # Auto lookup path to mysqldump.
 mysqldump_cmd=$(which mysqldump)
 # Default flags used for database dump.
-mysqldump_args="--triggers --routines --force --opt --add-drop-database"
+mysqldump_args="--triggers --routines --force --opt --add-drop-database --no-tablespaces"
 
 # Auto lookup path to gpg.
 gpg_cmd=$(which gpg)
